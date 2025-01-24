@@ -145,7 +145,7 @@ class WeatherService {
         const weatherData = await this.fetchWeatherData(coordinates);
         const forecastData = await this.fetchForecastData(coordinates);
         const currentWeather = this.parseCurrentWeather(weatherData);
-        const forecast = this.buildForecastArray(currentWeather, forecastData.list);
+        const forecast = this.buildForecastArray(currentWeather, forecastData);
         return [currentWeather, ...forecast];
     }
 }
