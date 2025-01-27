@@ -18,6 +18,9 @@ const __dirname = path.dirname(__filename);
 // Serve static files from the client directory
 app.use(express.static(path.join(__dirname, '../../client')));
 
+// Serve static files from the client/src directory for CSS and JS
+app.use('/src', express.static(path.join(__dirname, '../../client/src')));
+
 // Implement middleware for parsing JSON and urlencoded form data
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
