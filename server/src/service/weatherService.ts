@@ -5,6 +5,7 @@ interface Coordinates {
     lat: number;
     lon: number;
 }
+
 // Define a class for the Weather object
 class Weather {
     id: string;
@@ -81,7 +82,7 @@ class WeatherService {
     }
 
     buildForecastQuery(coordinates: Coordinates) {
-        return `${this.baseURL}/data/2.5/forecast/daily?lat=${coordinates.lat}&lon=${coordinates.lon}&cnt=5&units=imperial&appid=${this.apiKey}`;
+        return `${this.baseURL}/data/2.5/forecast?lat=${coordinates.lat}&lon=${coordinates.lon}&units=imperial&appid=${this.apiKey}`; // Corrected endpoint
     }
 
     // fetchAndDestructureLocationData method that fetches and destructures location data using the above methods
@@ -103,15 +104,18 @@ class WeatherService {
     async fetchForecastData(coordinates: Coordinates) {
         const query = this.buildForecastQuery(coordinates); //build the query
         const response = await fetch(query);
+        console.log(response);
         if (!response.ok) {
             throw new Error('Failed to fetch Forecast Data');
         }
-        return await response.json
+        const datastuff = await response.json();
+        console.log(datastuff);
+        return datastuff;
     }
     // Build parseCurrentWeather method
-    parseCurrentWeather(response) {
+    parseCurrentWeather(response: any) {
         return new Weather(
-            0,
+            response.id, // Use the id for easy identification
             response.name,
             new Date().toLocaleDateString(),
             response.weather[0].description,
@@ -119,33 +123,38 @@ class WeatherService {
             response.main.feels_like,
             response.main.humidity,
             response.wind.speed,
-            response.weather[0].icon);
+            response.weather[0].icon
+        );
     }
-    ;
     // Complete buildForecastArray method
-    buildForecastArray(
-        currentWeather: Weather, weatherData: Coordinates) {
-        return weatherData.map((data, index) => {
+    buildForecastArray(forecastData: any) {
+        
+        return forecastData.list.filter((data: any) => data.dt_txt?.includes('12:00:00')).map((data: any, index: number) => { // Access forecastData.list
             return new Weather(
-                index + 1,
-                currentWeather.city,
-                data.dt_txt,
+                `${forecastData.city.id}-${index}`, // Use a unique identifier
+                forecastData.city.name, // Access city name
+                new Date(data.dt * 1000).toLocaleDateString(), // Convert timestamp to date
                 data.weather[0].description,
-                data.main.temp,
-                data.main.feels_like,
+                data.main.temp, // Access temperature correctly
+                data.main.feels_like, // Access feels_like correctly
                 data.main.humidity,
-                data.wind.speed,
+                data.wind.speed, // Access wind speed correctly
                 data.weather[0].icon
             );
-        }, []);
+        });
     }
     // Complete getWeatherForCity method
     async getWeatherForCity(cityName: string) {
         const coordinates = await this.fetchAndDestructureLocationData(cityName);
+        console.log(coordinates);
         const weatherData = await this.fetchWeatherData(coordinates);
+        console.log(weatherData);
         const forecastData = await this.fetchForecastData(coordinates);
+        console.log(forecastData);
         const currentWeather = this.parseCurrentWeather(weatherData);
-        const forecast = this.buildForecastArray(currentWeather, forecastData);
+        //console.log(currentWeather)
+        const forecast = this.buildForecastArray(forecastData); 
+        //console.log(forecast)
         return [currentWeather, ...forecast];
     }
 }

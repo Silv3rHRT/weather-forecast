@@ -77,11 +77,11 @@ Render Functions
 */
 
 const renderCurrentWeather = (currentWeather: any): void => {
-  const { city, date, icon, iconDescription, tempF, windSpeed, humidity } =
+  const { cityName, date, icon, iconDescription, temp, windSpeed, humidity } =
     currentWeather;
 
   // convert the following to typescript
-  heading.textContent = `${city} (${date})`;
+  heading.textContent = `${cityName} (${date})`;
   weatherIcon.setAttribute(
     'src',
     `https://openweathermap.org/img/w/${icon}.png`
@@ -89,7 +89,7 @@ const renderCurrentWeather = (currentWeather: any): void => {
   weatherIcon.setAttribute('alt', iconDescription);
   weatherIcon.setAttribute('class', 'weather-img');
   heading.append(weatherIcon);
-  tempEl.textContent = `Temp: ${tempF}°F`;
+  tempEl.textContent = `Temp: ${temp}°F`;
   windEl.textContent = `Wind: ${windSpeed} MPH`;
   humidityEl.textContent = `Humidity: ${humidity} %`;
 
@@ -118,7 +118,7 @@ const renderForecast = (forecast: any): void => {
 };
 
 const renderForecastCard = (forecast: any) => {
-  const { date, icon, iconDescription, tempF, windSpeed, humidity } = forecast;
+  const { date, icon, iconDescription, temp, windSpeed, humidity } = forecast;
 
   const { col, cardTitle, weatherIcon, tempEl, windEl, humidityEl } =
     createForecastCard();
@@ -130,7 +130,7 @@ const renderForecastCard = (forecast: any) => {
     `https://openweathermap.org/img/w/${icon}.png`
   );
   weatherIcon.setAttribute('alt', iconDescription);
-  tempEl.textContent = `Temp: ${tempF} °F`;
+  tempEl.textContent = `Temp: ${temp} °F`;
   windEl.textContent = `Wind: ${windSpeed} MPH`;
   humidityEl.textContent = `Humidity: ${humidity} %`;
 
@@ -202,12 +202,12 @@ const createForecastCard = () => {
   };
 };
 
-const createHistoryButton = (city: string) => {
+const createHistoryButton = (cityName: string) => {
   const btn = document.createElement('button');
   btn.setAttribute('type', 'button');
   btn.setAttribute('aria-controls', 'today forecast');
   btn.classList.add('history-btn', 'btn', 'btn-secondary', 'col-10');
-  btn.textContent = city;
+  btn.textContent = cityName;
 
   return btn;
 };
@@ -218,7 +218,7 @@ const createDeleteButton = () => {
   delBtnEl.classList.add(
     'fas',
     'fa-trash-alt',
-    'delete-city',
+    'delete-cityName',
     'btn',
     'btn-danger',
     'col-2'
@@ -234,10 +234,10 @@ const createHistoryDiv = () => {
   return div;
 };
 
-const buildHistoryListItem = (city: any) => {
-  const newBtn = createHistoryButton(city.name);
+const buildHistoryListItem = (cityName: any) => {
+  const newBtn = createHistoryButton(cityName.name);
   const deleteBtn = createDeleteButton();
-  deleteBtn.dataset.city = JSON.stringify(city);
+  deleteBtn.dataset.cityName = JSON.stringify(cityName);
   const historyDiv = createHistoryDiv();
   historyDiv.append(newBtn, deleteBtn);
   return historyDiv;
@@ -265,14 +265,14 @@ const handleSearchFormSubmit = (event: any): void => {
 
 const handleSearchHistoryClick = (event: any) => {
   if (event.target.matches('.history-btn')) {
-    const city = event.target.textContent;
-    fetchWeather(city).then(getAndRenderHistory);
+    const cityName = event.target.textContent;
+    fetchWeather(cityName).then(getAndRenderHistory);
   }
 };
 
 const handleDeleteHistoryClick = (event: any) => {
   event.stopPropagation();
-  const cityID = JSON.parse(event.target.getAttribute('data-city')).id;
+  const cityID = JSON.parse(event.target.getAttribute('data-city-name')).id;
   deleteCityFromHistory(cityID).then(getAndRenderHistory);
 };
 
