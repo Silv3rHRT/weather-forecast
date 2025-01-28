@@ -16,10 +16,8 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 // Serve static files from the client directory
-app.use(express.static(path.join(__dirname, '../../client')));
+app.use(express.static(path.join(__dirname, '../../client/dist')));
 
-// Serve static files from the client/src directory for CSS and JS
-app.use('/src', express.static(path.join(__dirname, '../../client/src')));
 
 // Implement middleware for parsing JSON and urlencoded form data
 app.use(express.json());
@@ -27,11 +25,6 @@ app.use(express.urlencoded({ extended: true }));
 
 // Implement middleware to connect the routes
 app.use(routes);
-
-// Serve the index.html file for any unknown routes
-app.get('*', (_req, res) => {
-  res.sendFile(path.join(__dirname, '../../client/index.html'));
-});
 
 // Start the server on the port
 app.listen(PORT, () => console.log(`Listening on PORT: ${PORT}`));
